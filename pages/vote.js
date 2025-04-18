@@ -57,6 +57,7 @@ const PageWrapper = styled.div`
     background-color: #001E44;
     padding: 2rem;
     color: white;
+    padding-top: 80px;
 `;
 
 const Header = styled.h1`

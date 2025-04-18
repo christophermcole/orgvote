@@ -6,14 +6,17 @@ const Home = () => {
 
   return (
     <Main>
-      <HeaderSection>
-        <Title>Welcome to<br />OrgVote</Title>
-        <Description>
-          OrgVote is a decentralized voting platform designed to empower student organizations.
-          Built on blockchain technology, it ensures secure, transparent, and tamper-proof
-          elections for our campus community.
-        </Description>
-      </HeaderSection>
+      <RowSection>
+      <Image src="/PSU-Logo.png" alt="Penn State Logo" />
+        <HeaderSection>
+          <Title>Welcome to OrgVote</Title>
+          <Description>
+            OrgVote is a decentralized voting platform designed to empower student organizations.
+            Built on blockchain technology, it ensures secure, transparent, and tamper-proof
+            elections for our campus community.
+          </Description>
+        </HeaderSection>
+      </RowSection>
 
       <CardSection>
         <NavCard onClick={() => router.push("/create")}>Create an Election</NavCard>
@@ -35,7 +38,24 @@ const Main = styled.div`
   flex-direction: column;
   align-items: center;
   padding: 3rem 1rem;
+  padding-top: 80px;
 `;
+
+const RowSection = styled.section`
+  max-width: 800px;
+  text-align: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+`
+
+const Image = styled.img`
+  width: 325px;
+  padding-right: 40px;
+  border-radius: 12px;
+  object-fit: contain;
+`
 
 const HeaderSection = styled.section`
   max-width: 800px;

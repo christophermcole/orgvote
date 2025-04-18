@@ -4,7 +4,6 @@ export default function Document() {
   return (
     <Html lang="en">
       <Head>
-        {/*include global fonts or meta tags here*/}
         <style>{`
           html, body {
             margin: 0;
