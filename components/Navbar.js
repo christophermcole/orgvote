@@ -28,6 +28,9 @@ const Navbar = () => {
               {isExpanded && <FaHistory />}
               {isExpanded && <Label>Past Elections</Label>}
             </NavItem>
+            
+            {isExpanded && <Spacer />}
+            {isExpanded && <SignInButton>Sign In</SignInButton>}
         </Nav>
     );
 };
@@ -74,4 +77,23 @@ const NavItem = styled.a`
 
 const Label = styled.span`
   white-space: nowrap;
+`;
+
+const Spacer = styled.div`
+  flex-grow: 1;
+`;
+
+const SignInButton = styled.button`
+  background-color: #9DD0FF;
+  color: #001E44;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+
+  &:hover {
+    background-color: #b8e0ff;
+  }
 `;
