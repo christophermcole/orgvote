@@ -52,7 +52,7 @@ const Nav = styled.nav`
 
 const Logo = styled.div`
   font-size: 1.2rem;
-  color: #9DD0FF;
+  color:rgb(255, 255, 255);
   font-weight: bold;
 `;
 
