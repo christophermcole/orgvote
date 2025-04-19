@@ -94,6 +94,7 @@ const PageWrapper = styled.div`
 const FormContainer = styled.form`
     background-color: #002D62;
     padding: 2.5rem;
+    padding-top: 0;
     border-radius: 16px;
     width: 100%;
     max-width: 800px;
@@ -105,7 +106,8 @@ const FormContainer = styled.form`
 
 const Heading = styled.h1`
     text-align: center;
-    color: #9DD0FF;
+    font-size: 5rem;
+    color:rgb(255, 255, 255);
     margin-bottom: 1rem;
 `;
 

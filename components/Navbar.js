@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { FaHome, FaPlus, FaVoteYea } from "react-icons/fa";
+import { FaHistory, FaHome, FaPlus, FaVoteYea } from "react-icons/fa";
 
 const Navbar = () => {
     const [isExpanded, setIsExpanded] = useState(false);
@@ -23,6 +23,10 @@ const Navbar = () => {
             <NavItem href="/vote">
                 {isExpanded && <FaVoteYea />}
                 {isExpanded && <Label>Vote</Label>}
+            </NavItem>
+            <NavItem href="/past-elections">
+              {isExpanded && <FaHistory />}
+              {isExpanded && <Label>Past Elections</Label>}
             </NavItem>
         </Nav>
     );

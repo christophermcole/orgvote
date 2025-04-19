@@ -57,12 +57,13 @@ const PageWrapper = styled.div`
     min-height: 100vh;
     background-color: #001E44;
     padding: 2rem;
+    padding-top: 80px;
     color: white;
 `;
 
 const Header = styled.h1`
     font-size: 5rem;
-    color: #9DD0FF;
+    color:rgb(255, 255, 255);
     text-align: center;
     margin-bottom: 2rem;
 `;

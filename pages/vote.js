@@ -62,7 +62,7 @@ const PageWrapper = styled.div`
 
 const Header = styled.h1`
     font-size: 5rem;
-    color: #9DD0FF;
+    color:rgb(255, 255, 255);
     text-align: center;
     margin-bottom: 2rem;
 `;
