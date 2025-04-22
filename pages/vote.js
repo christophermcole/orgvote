@@ -1,29 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-
-const elections = [
-    {
-        id: 1,
-        title: "Student Government President",
-        description: "Vote for the next SGA President to represent your student body.",
-        votingInstructions: "Voting ends April 30. Select one candidate below.",
-    },
-    {
-        id: 2,
-        title: "Club Budget Approval",
-        description: "Approve or reject the proposed budget for the Robotics Club.",
-        votingInstructions: "You may vote yes or no. Voting ends May 5.",
-    },
-    {
-        id: 3,
-        title: "Dining Committee Election",
-        description: "Help decide who will represent students in dining services decisions.",
-        votingInstructions: "Voting ends May 10.",
-    },
-];
+import { db } from "../lib/firebase";
+import { collection, getDocs } from "firebase/firestore";
 
 const VotePage = () => {
+    const [elections, setElections] = useState([]);
     const [expanded, setExpanded] = useState(null);
+
+    useEffect(() => {
+        const fetchElections = async () => {
+            const querySnapshot = await getDocs(collection(db, "elections"));
+            const now = new Date();
+            const liveElections = [];
+
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                const start = data.start.toDate();
+                const end = data.end.toDate();
+
+                if (now >= start && now <= end) {
+                    liveElections.push({ id: doc.id, ...data });
+                }
+            });
+
+            setElections(liveElections);
+        };
+
+        fetchElections();
+    }, []);
 
     const toggleExpand = (id) => {
         setExpanded(expanded === id ? null : id);
@@ -33,19 +37,27 @@ const VotePage = () => {
         <PageWrapper>
             <Header>VOTE</Header>
             <CardGrid>
-                {elections.map((election) => {
-                    const isExpanded = expanded === election.id;
-                    return (
-                        <ElectionCard key={election.id} $expanded={isExpanded} onClick={() => toggleExpand(election.id)}>
-                            <CardTitle>{election.title}</CardTitle>
-                            <CardDescription>{election.description}</CardDescription>
-                            <ExpandedSection $visible={isExpanded}>
-                                <p>{election.votingInstructions}</p>
-                                <VoteButton disabled>Vote (Coming Soon)</VoteButton>
-                            </ExpandedSection>
-                        </ElectionCard>
-                    );
-                })}
+                {elections.length === 0 ? (
+                    <p style={{ color: "#9DD0FF", fontSize: "1.2rem" }}>No current elections available.</p>
+                ) : (
+                    elections.map((election) => {
+                        const isExpanded = expanded === election.id;
+                        return (
+                            <ElectionCard
+                                key={election.id}
+                                $expanded={isExpanded}
+                                onClick={() => toggleExpand(election.id)}
+                            >
+                                <CardTitle>{election.title}</CardTitle>
+                                <CardDescription>{election.description}</CardDescription>
+                                <ExpandedSection $visible={isExpanded}>
+                                    <p>Voting is open until: <strong>{election.end.toDate().toLocaleString()}</strong></p>
+                                    <VoteButton disabled>Vote (Coming Soon)</VoteButton>
+                                </ExpandedSection>
+                            </ElectionCard>
+                        );
+                    })
+                )}
             </CardGrid>
         </PageWrapper>
     );
@@ -57,12 +69,11 @@ const PageWrapper = styled.div`
     background-color: #001E44;
     padding: 2rem;
     color: white;
-    padding-top: 80px;
 `;
 
 const Header = styled.h1`
     font-size: 5rem;
-    color:rgb(255, 255, 255);
+    color: #9DD0FF;
     text-align: center;
     margin-bottom: 2rem;
 `;

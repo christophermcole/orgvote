@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import { db } from "../lib/firebase";
+import { collection, addDoc, Timestamp } from "firebase/firestore";
 
 const CreateElection = () => {
     const [formData, setFormData] = useState({
@@ -18,9 +20,29 @@ const CreateElection = () => {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Election Created:", formData); // Replace with Firestore or smart contract logic later
+
+        try {
+            await addDoc(collection(db, "elections"), {
+                ...formData,
+                start: Timestamp.fromDate(new Date(formData.start)),
+                end: Timestamp.fromDate(new Date(formData.end)),
+                createdAt: Timestamp.now()
+            });
+
+            alert("Election created successfully!");
+            setFormData({
+                title: "",
+                description: "",
+                start: "",
+                end: "",
+                password: ""
+            });
+        } catch (error) {
+            console.error("Error creating election:", error);
+            alert("Failed to create election.");
+        }
     };
 
     return (
@@ -88,13 +110,11 @@ const PageWrapper = styled.div`
     justify-content: center;
     align-items: center;
     padding: 2rem;
-    padding-top: 80px;
 `;
 
 const FormContainer = styled.form`
     background-color: #002D62;
     padding: 2.5rem;
-    padding-top: 0;
     border-radius: 16px;
     width: 100%;
     max-width: 800px;
@@ -106,8 +126,7 @@ const FormContainer = styled.form`
 
 const Heading = styled.h1`
     text-align: center;
-    font-size: 5rem;
-    color:rgb(255, 255, 255);
+    color: #9DD0FF;
     margin-bottom: 1rem;
 `;
 
