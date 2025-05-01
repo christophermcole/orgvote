@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { db } from "../lib/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { getContract } from "../lib/contract";
 
 const VotePage = () => {
     const [elections, setElections] = useState([]);
@@ -9,29 +8,55 @@ const VotePage = () => {
 
     useEffect(() => {
         const fetchElections = async () => {
-            const querySnapshot = await getDocs(collection(db, "elections"));
-            const now = new Date();
-            const liveElections = [];
-
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
-                const start = data.start.toDate();
-                const end = data.end.toDate();
-
-                if (now >= start && now <= end) {
-                    liveElections.push({ id: doc.id, ...data });
+            try {
+                await window.ethereum.request({ method: "eth_requestAccounts" });
+                const contract = getContract();
+                const count = await contract.electionCount();
+    
+                const all = [];
+                for (let i = 0; i < count; i++) {
+                    const e = await contract.getElection(i);
+                    const [title, description, options, startTime, endTime] = e;
+    
+                    // Show only live elections
+                    const now = Math.floor(Date.now() / 1000);
+                    if (now >= Number(startTime) && now <= Number(endTime)) {
+                        all.push({
+                            id: i,
+                            title,
+                            description,
+                            options,
+                            startTime: Number(startTime),
+                            endTime: Number(endTime),
+                        });
+                    }
                 }
-            });
-
-            setElections(liveElections);
+    
+                setElections(all);
+            } catch (err) {
+                console.error("Error loading elections:", err);
+            }
         };
-
+    
         fetchElections();
     }, []);
 
     const toggleExpand = (id) => {
         setExpanded(expanded === id ? null : id);
     };
+
+    const handleVote = async (electionId, option) => {
+        try {
+            const contract = getContract();
+            const tx = await contract.vote(electionId, option);
+            await tx.wait();
+            alert("✅ Vote submitted successfully!");
+        } catch (error) {
+            console.error("❌ Vote failed:", error);
+            alert("Vote failed. See console for details.");
+        }
+    };
+    
 
     return (
         <PageWrapper>
@@ -51,8 +76,15 @@ const VotePage = () => {
                                 <CardTitle>{election.title}</CardTitle>
                                 <CardDescription>{election.description}</CardDescription>
                                 <ExpandedSection $visible={isExpanded}>
-                                    <p>Voting is open until: <strong>{election.end.toDate().toLocaleString()}</strong></p>
-                                    <VoteButton disabled>Vote (Coming Soon)</VoteButton>
+                                <p>
+                                    Voting is open until:{" "}
+                                    <strong>{new Date(election.endTime * 1000).toLocaleString()}</strong>
+                                </p>
+                                    {election.options.map((option, i) => (
+                                        <VoteButton key={i} onClick={() => handleVote(election.id, option)}>
+                                            Vote for {option}
+                                        </VoteButton>
+                                    ))}
                                 </ExpandedSection>
                             </ElectionCard>
                         );
@@ -124,8 +156,12 @@ const VoteButton = styled.button`
     border-radius: 8px;
     padding: 0.6rem 1.2rem;
     font-weight: bold;
-    cursor: not-allowed;
+    cursor: pointer;
     margin-top: 0.5rem;
+
+    &:hover {
+        background-color: #b8e0ff;
+    }
 `;
 
 export default VotePage;

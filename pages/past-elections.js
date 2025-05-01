@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { db } from "../lib/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { getContract } from "../lib/contract";
 
 const PastElections = () => {
   const [pastElections, setPastElections] = useState([]);
@@ -9,18 +8,34 @@ const PastElections = () => {
   useEffect(() => {
     const fetchPastElections = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, "elections"));
-        const now = new Date();
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        const contract = getContract();
+        const count = await contract.electionCount();
+        const now = Math.floor(Date.now() / 1000);
+
         const past = [];
 
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          const end = data.end.toDate();
+        for (let i = 0; i < count; i++) {
+          const e = await contract.getElection(i);
+          const [title, description, options, startTime, endTime] = e;
 
-          if (now > end) {
-            past.push({ id: doc.id, ...data });
+          if (now > Number(endTime)) {
+            const results = await Promise.all(
+              options.map(async (option) => {
+                const count = await contract.getVotes(i, option);
+                return { option, count: count.toString() };
+              })
+            );
+
+            past.push({
+              id: i,
+              title,
+              description,
+              endTime: Number(endTime),
+              results,
+            });
           }
-        });
+        }
 
         setPastElections(past);
       } catch (error) {
@@ -43,8 +58,15 @@ const PastElections = () => {
               <CardTitle>{election.title}</CardTitle>
               <CardDescription>{election.description}</CardDescription>
               <CardFooter>
-                Ended: {election.end.toDate().toLocaleString()}
+                Ended: {new Date(election.endTime * 1000).toLocaleString()}
               </CardFooter>
+              <ResultsList>
+                {election.results.map((result, index) => (
+                  <li key={index}>
+                    {result.option}: {result.count} vote{result.count !== "1" ? "s" : ""}
+                  </li>
+                ))}
+              </ResultsList>
             </ElectionCard>
           ))
         )}
@@ -97,6 +119,17 @@ const CardFooter = styled.p`
   margin-top: 1rem;
   font-size: 0.9rem;
   color: #c7dfff;
+`;
+
+const ResultsList = styled.ul`
+  margin-top: 1rem;
+  list-style: none;
+  padding-left: 0;
+  color: #ffffff;
+
+  li {
+    margin-bottom: 0.4rem;
+  }
 `;
 
 const NoElectionsMessage = styled.p`
