@@ -4,6 +4,23 @@ import { FaHistory, FaHome, FaPlus, FaVoteYea } from "react-icons/fa";
 
 const Navbar = () => {
     const [isExpanded, setIsExpanded] = useState(false);
+    const [account, setAccount] = useState(null);
+
+    const connectWallet = async () => {
+        if (window.ethereum) {
+            try {
+                const accounts = await window.ethereum.request({
+                    method: "eth_requestAccounts",
+                });
+                setAccount(accounts[0]);
+                console.log("Connected to:", accounts[0]);
+            } catch (err) {
+                console.error("Wallet connection failed:", err);
+            }
+        } else {
+            alert("Please install MetaMask!");
+        }
+    };
 
     return (
         <Nav
@@ -25,18 +42,23 @@ const Navbar = () => {
                 {isExpanded && <Label>Vote</Label>}
             </NavItem>
             <NavItem href="/past-elections">
-              {isExpanded && <FaHistory />}
-              {isExpanded && <Label>Past Elections</Label>}
+                {isExpanded && <FaHistory />}
+                {isExpanded && <Label>Past Elections</Label>}
             </NavItem>
-            
+
             {isExpanded && <Spacer />}
-            {isExpanded && <SignInButton>Sign In</SignInButton>}
+            {isExpanded && (
+                <ConnectButton onClick={connectWallet}>
+                    {account ? `Connected: ${account.slice(0, 6)}...` : "Connect Wallet"}
+                </ConnectButton>
+            )}
         </Nav>
     );
 };
 
 export default Navbar;
 
+// Styled Components
 const Nav = styled.nav`
   position: fixed;
   top: 0;
@@ -55,7 +77,7 @@ const Nav = styled.nav`
 
 const Logo = styled.div`
   font-size: 1.2rem;
-  color:rgb(255, 255, 255);
+  color: rgb(255, 255, 255);
   font-weight: bold;
 `;
 
@@ -83,7 +105,7 @@ const Spacer = styled.div`
   flex-grow: 1;
 `;
 
-const SignInButton = styled.button`
+const ConnectButton = styled.button`
   background-color: #9DD0FF;
   color: #001E44;
   border: none;

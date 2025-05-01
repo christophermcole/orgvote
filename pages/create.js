@@ -22,7 +22,7 @@ const CreateElection = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+        console.log("✅ Create button clicked. Submitting form...");
         try {
             await addDoc(collection(db, "elections"), {
                 ...formData,
@@ -41,7 +41,7 @@ const CreateElection = () => {
             });
         } catch (error) {
             console.error("Error creating election:", error);
-            alert("Failed to create election.");
+            alert("Failed to create election: " + error.message);
         }
     };
 
@@ -96,7 +96,7 @@ const CreateElection = () => {
                     required
                 />
 
-                <CreateButton type="submit">CREATE</CreateButton>
+                <CreateButton type="button" onClick={handleSubmit}>CREATE</CreateButton>
             </FormContainer>
         </PageWrapper>
     );
