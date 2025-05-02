@@ -180,7 +180,8 @@ const VoteButton = styled.button`
     background-color: #9DD0FF;
     color: #001E44;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
+    margin-right: 0.5rem;
     padding: 0.6rem 1.2rem;
     font-weight: bold;
     cursor: pointer;
