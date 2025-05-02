@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { FaHistory, FaHome, FaPlus, FaVoteYea } from "react-icons/fa";
+import { useWallet } from "../lib/walletcontext"; 
 
 const Navbar = () => {
     const [isExpanded, setIsExpanded] = useState(false);
-    const [account, setAccount] = useState(null);
+    const { walletAddress, setWalletAddress } = useWallet();
 
     const connectWallet = async () => {
         if (window.ethereum) {
@@ -12,7 +13,7 @@ const Navbar = () => {
                 const accounts = await window.ethereum.request({
                     method: "eth_requestAccounts",
                 });
-                setAccount(accounts[0]);
+                setWalletAddress(accounts[0]);
                 console.log("Connected to:", accounts[0]);
             } catch (err) {
                 console.error("Wallet connection failed:", err);
@@ -49,7 +50,7 @@ const Navbar = () => {
             {isExpanded && <Spacer />}
             {isExpanded && (
                 <ConnectButton onClick={connectWallet}>
-                    {account ? `Connected: ${account.slice(0, 6)}...` : "Connect Wallet"}
+                    {walletAddress ? `Connected: ${walletAddress.slice(0, 6)}...` : "Connect Wallet"}
                 </ConnectButton>
             )}
         </Nav>
@@ -57,6 +58,7 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
 
 // Styled Components
 const Nav = styled.nav`

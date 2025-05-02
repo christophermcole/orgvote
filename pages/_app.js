@@ -1,10 +1,14 @@
 import Navbar from "../components/Navbar";
+import { WalletProvider } from "../lib/walletcontext";
+
 
 function MyApp({ Component, pageProps }) {
     return (
         <>
-            <Navbar />
-            <Component {...pageProps} />
+            <WalletProvider>
+                <Navbar />
+                <Component {...pageProps} />
+            </WalletProvider>
         </>
     );
 }

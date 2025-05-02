@@ -5,41 +5,50 @@ import { getContract } from "../lib/contract";
 const VotePage = () => {
     const [elections, setElections] = useState([]);
     const [expanded, setExpanded] = useState(null);
+    const [walletConnected, setWalletConnected] = useState(false);
 
     useEffect(() => {
         const fetchElections = async () => {
-            try {
-                await window.ethereum.request({ method: "eth_requestAccounts" });
-                const contract = getContract();
-                const count = await contract.electionCount();
-    
-                const all = [];
-                for (let i = 0; i < count; i++) {
-                    const e = await contract.getElection(i);
-                    const [title, description, options, startTime, endTime] = e;
-    
-                    // Show only live elections
-                    const now = Math.floor(Date.now() / 1000);
-                    if (now >= Number(startTime) && now <= Number(endTime)) {
-                        all.push({
-                            id: i,
-                            title,
-                            description,
-                            options,
-                            startTime: Number(startTime),
-                            endTime: Number(endTime),
-                        });
-                    }
-                }
-    
-                setElections(all);
-            } catch (err) {
-                console.error("Error loading elections:", err);
+          try {
+            const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+            if (!accounts || accounts.length === 0) {
+              setWalletConnected(false);
+              return;
             }
+      
+            setWalletConnected(true);
+      
+            const contract = getContract();
+            const count = await contract.electionCount();
+            const now = Math.floor(Date.now() / 1000);
+      
+            const all = [];
+            for (let i = 0; i < count; i++) {
+              const e = await contract.getElection(i);
+              const [title, description, options, startTime, endTime] = e;
+      
+              if (now >= Number(startTime) && now <= Number(endTime)) {
+                all.push({
+                  id: i,
+                  title,
+                  description,
+                  options,
+                  startTime: Number(startTime),
+                  endTime: Number(endTime),
+                });
+              }
+            }
+      
+            setElections(all);
+          } catch (err) {
+            console.error("Error loading elections:", err);
+            setWalletConnected(false);
+          }
         };
-    
+      
         fetchElections();
-    }, []);
+      }, []);
+      
 
     const toggleExpand = (id) => {
         setExpanded(expanded === id ? null : id);
@@ -47,20 +56,38 @@ const VotePage = () => {
 
     const handleVote = async (electionId, option) => {
         try {
-            const contract = getContract();
-            const tx = await contract.vote(electionId, option);
-            await tx.wait();
-            alert("✅ Vote submitted successfully!");
+          //prompt user to connect wallet
+          const [address] = await window.ethereum.request({ method: "eth_requestAccounts" });
+      
+          const contract = getContract();
+      
+          //check if this wallet has already voted in this election
+          const alreadyVoted = await contract.hasVoted(electionId, address);
+          if (alreadyVoted) {
+            alert("❌ You have already voted in this election.");
+            return;
+          }
+      
+          //cast vote
+          const tx = await contract.vote(electionId, option);
+          await tx.wait();
+          alert("✅ Vote submitted successfully!");
         } catch (error) {
-            console.error("❌ Vote failed:", error);
-            alert("Vote failed. See console for details.");
+          console.error("❌ Vote failed:", error);
+          alert("Vote failed. See console for details.");
         }
-    };
+      };
+      
     
 
     return (
         <PageWrapper>
             <Header>VOTE</Header>
+            {!walletConnected && (
+                <WarningMessage>
+                    ❌ No wallet connected. Please connect your wallet to vote.
+                </WarningMessage>
+                )}
             <CardGrid>
                 {elections.length === 0 ? (
                     <p style={{ color: "#9DD0FF", fontSize: "1.2rem" }}>No current elections available.</p>
@@ -163,5 +190,13 @@ const VoteButton = styled.button`
         background-color: #b8e0ff;
     }
 `;
+
+const WarningMessage = styled.p`
+  text-align: center;
+  color: #FFAAAA;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+`;
+
 
 export default VotePage;
