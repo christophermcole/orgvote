@@ -6,6 +6,7 @@ const PastElections = () => {
   const [pastElections, setPastElections] = useState([]);
 
   useEffect(() => {
+    //fetch and filter elections that have ended
     const fetchPastElections = async () => {
       try {
         await window.ethereum.request({ method: "eth_requestAccounts" });
@@ -20,6 +21,7 @@ const PastElections = () => {
           const [title, description, options, startTime, endTime] = e;
 
           if (now > Number(endTime)) {
+            //get vote counts
             const results = await Promise.all(
               options.map(async (option) => {
                 const count = await contract.getVotes(i, option);

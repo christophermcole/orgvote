@@ -23,10 +23,11 @@ const CreateElection = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      //request wallet access
       await window.ethereum.request({ method: "eth_requestAccounts" });
 
       const contract = getContract();
-
+      //convert date and time to usable formats
       const now = Math.floor(Date.now() / 1000);
       const startTime = Math.floor(new Date(formData.start).getTime() / 1000);
       const endTime = Math.floor(new Date(formData.end).getTime() / 1000);
@@ -43,7 +44,7 @@ const CreateElection = () => {
         alert("Please enter at least two valid options.");
         return;
       }
-
+      //send info to smart contract
       const tx = await contract.createElection(
         formData.title,
         formData.description,
@@ -54,6 +55,7 @@ const CreateElection = () => {
       await tx.wait();
 
       alert("✅ Election created on-chain!");
+      //reset form
       setFormData({
         title: "",
         description: "",

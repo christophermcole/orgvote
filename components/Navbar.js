@@ -7,7 +7,7 @@ const Navbar = () => {
     const [isExpanded, setIsExpanded] = useState(false);
     const { walletAddress, setWalletAddress } = useWallet();
 
-    const connectWallet = async () => {
+    const connectWallet = async () => { //uses metamask to connect to a user's wallet
         if (window.ethereum) {
             try {
                 const accounts = await window.ethereum.request({
@@ -19,13 +19,13 @@ const Navbar = () => {
                 console.error("Wallet connection failed:", err);
             }
         } else {
-            alert("Please install MetaMask!");
+            alert("Please install MetaMask!"); 
         }
     };
 
     return (
         <Nav
-            onMouseEnter={() => setIsExpanded(true)}
+            onMouseEnter={() => setIsExpanded(true)} //expands on hover
             onMouseLeave={() => setIsExpanded(false)}
             $expanded={isExpanded}
         >
@@ -50,8 +50,8 @@ const Navbar = () => {
             {isExpanded && <Spacer />}
             {isExpanded && (
                 <ConnectButton onClick={connectWallet}>
-                    {walletAddress ? `Connected: ${walletAddress.slice(0, 6)}...` : "Connect Wallet"}
-                </ConnectButton>
+                    {walletAddress ? `Connected: ${walletAddress.slice(0, 6)}...` : "Connect Wallet"} 
+                </ConnectButton> //displays first bit of wallet address so users know they're signed in
             )}
         </Nav>
     );

@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 
 const Home = () => {
   const router = useRouter();
-
+  //array of student org images and albels for the carousel
   const images = [
     { src: "/orgs/mocktrial.jpg", label: "Mock Trial" },
     { src: "/orgs/chess.jpg", label: "Chess Club" },
@@ -38,7 +38,7 @@ const Home = () => {
         <NavCard onClick={() => router.push("/past-elections")}>Past Elections</NavCard>
       </CardSection>
 
-      {/* Carousel with Labels */}
+      {/* auto-scrolling image carousel */}
       <CarouselWrapper>
         <CarouselTrack>
           {images.concat(images).map((img, index) => (
@@ -112,7 +112,7 @@ const CarouselWrapper = styled.div`
   width: 100%;
   margin-top: 3rem;
 `;
-
+//animated horizontal scrolling for images
 const CarouselTrack = styled.div`
   display: flex;
   animation: scroll 40s linear infinite;

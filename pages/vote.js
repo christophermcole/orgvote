@@ -7,9 +7,11 @@ const VotePage = () => {
     const [expanded, setExpanded] = useState(null);
     const [walletConnected, setWalletConnected] = useState(false);
 
+    //get all live elections
     useEffect(() => {
         const fetchElections = async () => {
           try {
+            //request wallet access
             const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
             if (!accounts || accounts.length === 0) {
               setWalletConnected(false);
@@ -23,6 +25,7 @@ const VotePage = () => {
             const now = Math.floor(Date.now() / 1000);
       
             const all = [];
+            //only show live elections, not past or future ones
             for (let i = 0; i < count; i++) {
               const e = await contract.getElection(i);
               const [title, description, options, startTime, endTime] = e;
